@@ -34,8 +34,9 @@ const adminItems = [
     label: "Staff Management",
     icon: UserCog,
     children: [
+      { label: "Departments", path: "/admin/departments" },
+      { label: "Roles", path: "/admin/roles" },
       { label: "All Staff", path: "/admin/staff" },
-      { label: "Add Staff", path: "/admin/staff/new" }
     ]
   },
   {
@@ -51,7 +52,6 @@ const adminItems = [
     icon: Settings,
     children: [
       { label: "Admin Profile", path: "/admin/settings" },
-      { label: "Roles & Access", path: "/admin/settings/roles" }
     ]
   }
 ];

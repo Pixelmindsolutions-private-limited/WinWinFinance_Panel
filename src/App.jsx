@@ -17,6 +17,7 @@ import StaffTasks from "./pages/staff/Tasks";
 import StaffProfile from "./pages/staff/Profile";
 
 import NotFound from "./pages/NotFound";
+import DepartmentManagement from "./pages/admin/Staff Management/Department/DepartmentManagement";
 
 export default function App() {
   return (
@@ -32,6 +33,9 @@ export default function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/staff" element={<AdminStaff />} />
+
+            <Route path="/admin/departments" element={<DepartmentManagement />}/>
+
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>
