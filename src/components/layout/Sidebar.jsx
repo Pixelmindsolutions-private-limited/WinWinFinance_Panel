@@ -101,8 +101,7 @@ export default function Sidebar({ role, open, onClose, collapsed, onToggle }) {
   }, [activeGroupLabel]);
 
   const handleLogout = () => {
-    logout();
-    navigate(`/${role}/login`, { replace: true });
+    logout(navigate);
   };
 
   const handleGroupClick = (label) => {

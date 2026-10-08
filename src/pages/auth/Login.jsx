@@ -15,18 +15,14 @@ import {
 import { loginAdmin, loginStaff } from "../../services/auth";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 
-// Staff uses a dummy account until its API is ready.
-const STAFF_DEMO = { email: "staff@winwinfinance.com", password: "staff123" };
-
 export default function Login({ role }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isAdmin = role === "admin";
 
-  // Admin starts empty (real API). Staff is prefilled with the dummy account.
-  const [email, setEmail] = useState(isAdmin ? "" : STAFF_DEMO.email);
-  const [password, setPassword] = useState(isAdmin ? "" : STAFF_DEMO.password);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,7 +40,7 @@ export default function Login({ role }) {
       if (isAdmin) {
         await loginAdmin(email.trim(), password);
       } else {
-        loginStaff(email.trim(), password);
+        await loginStaff(email.trim(), password);
       }
 
       const fallback = `/${role}/dashboard`;
@@ -58,12 +54,6 @@ export default function Login({ role }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fillDemo = () => {
-    setEmail(STAFF_DEMO.email);
-    setPassword(STAFF_DEMO.password);
-    setError("");
   };
 
   const inputClass =
@@ -215,38 +205,18 @@ export default function Login({ role }) {
           </button>
         </form>
 
-        {/* Demo credentials — staff only (dummy account) */}
-        {!isAdmin && (
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-slate-700">Demo credentials</p>
-              <button
-                type="button"
-                onClick={fillDemo}
-                className="rounded-lg px-2 py-1 text-xs font-medium text-winwin-600 transition hover:bg-winwin-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-winwin-600"
-              >
-                Fill in
-              </button>
-            </div>
-            <dl className="mt-2 space-y-1 text-xs text-slate-500">
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="w-16 shrink-0 text-slate-400">Email</dt>
-                <dd className="break-all font-medium text-slate-600">{STAFF_DEMO.email}</dd>
-              </div>
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="w-16 shrink-0 text-slate-400">Password</dt>
-                <dd className="font-medium text-slate-600">{STAFF_DEMO.password}</dd>
-              </div>
-            </dl>
-          </div>
-        )}
-
         {/* Switch role */}
         <div className="mt-6 border-t border-slate-100 pt-5 text-center text-sm text-slate-500">
           {isAdmin ? "Not an admin?" : "Are you an admin?"}{" "}
           <button
             type="button"
-            onClick={() => navigate(isAdmin ? "/staff/login" : "/admin/login")}
+            onClick={() =>
+              window.open(
+                isAdmin ? "/staff/login" : "/admin/login",
+                "_blank",
+                "noopener,noreferrer"
+              )
+            }
             className="rounded font-semibold text-winwin-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-winwin-600"
           >
             {isAdmin ? "Staff Login" : "Admin Login"}

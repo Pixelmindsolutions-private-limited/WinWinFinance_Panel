@@ -14,10 +14,14 @@ import AdminSettings from "./pages/admin/Admin Profile/AdminProfile";
 import StaffDashboard from "./pages/staff/Dashboard";
 import StaffCustomers from "./pages/staff/Customers";
 import StaffTasks from "./pages/staff/Tasks";
-import StaffProfile from "./pages/staff/Profile";
+import StaffProfile from "./pages/staff/StaffProfile";
 
 import NotFound from "./pages/NotFound";
 import DepartmentManagement from "./pages/admin/Staff Management/Department/DepartmentManagement";
+import AllRoles from "./pages/admin/Staff Management/Roles/AllRoles";
+import CreateRole from "./pages/admin/Staff Management/Roles/CreateRole";
+import AllStaff from "./pages/admin/Staff Management/Staff/AllStaff";
+import CreateEditStaff from "./pages/admin/Staff Management/Staff/CreateEditStaff";
 
 export default function App() {
   return (
@@ -32,9 +36,16 @@ export default function App() {
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/staff" element={<AdminStaff />} />
 
-            <Route path="/admin/departments" element={<DepartmentManagement />}/>
+            <Route path="/admin/departments" element={<DepartmentManagement />} />
+
+            <Route path="/admin/roles" element={<AllRoles />} />
+            <Route path="/admin/roles/create" element={<CreateRole />} />
+            <Route path="/admin/roles/edit/:id" element={<CreateRole />} />
+
+            <Route path="/admin/staff" element={<AllStaff />} />
+            <Route path="/admin/staff/create" element={<CreateEditStaff />} />
+            <Route path="/admin/staff/edit/:id" element={<CreateEditStaff />} />
 
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>

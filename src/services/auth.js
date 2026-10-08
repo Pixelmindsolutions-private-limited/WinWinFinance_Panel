@@ -12,20 +12,14 @@ const API_BASE_URL =
 
 export function getAuth() {
   try {
-    return JSON.parse(
-      sessionStorage.getItem(AUTH_KEY) || "null"
-    );
+    return JSON.parse(sessionStorage.getItem(AUTH_KEY) || "null");
   } catch {
     return null;
   }
 }
 
 function saveAuth(auth) {
-  sessionStorage.setItem(
-    AUTH_KEY,
-    JSON.stringify(auth)
-  );
-
+  sessionStorage.setItem(AUTH_KEY, JSON.stringify(auth));
   return auth;
 }
 
@@ -40,9 +34,7 @@ export function isAuthenticated(role) {
     return false;
   }
 
-  return role
-    ? auth.role === role
-    : true;
+  return role ? auth.role === role : true;
 }
 
 /* =========================================================
@@ -53,11 +45,7 @@ export function authHeaders(extra = {}) {
   const token = getToken();
 
   return {
-    ...(token
-      ? {
-          Authorization: `Bearer ${token}`,
-        }
-      : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...extra,
   };
 }
@@ -67,9 +55,7 @@ export function authHeaders(extra = {}) {
 
   fetch(url, {
     method: "POST",
-    headers: authHeaders({
-      "Content-Type": "application/json",
-    }),
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(data),
   });
 
@@ -81,49 +67,48 @@ export function authHeaders(extra = {}) {
     body: formData,
   });
 
-  IMPORTANT:
-  Do NOT manually add Content-Type for FormData.
+  IMPORTANT: Do NOT manually add Content-Type for FormData.
 */
 
 /* =========================================================
    LOGOUT
 ========================================================= */
 
-export function logout() {
-  sessionStorage.removeItem(AUTH_KEY);
+export function logout(navigate) {
+  const authData = sessionStorage.getItem(AUTH_KEY);
+
+  if (authData) {
+    const { role } = JSON.parse(authData);
+
+    sessionStorage.removeItem(AUTH_KEY);
+
+    if (role === "admin") {
+      navigate("/admin/login");
+    } else if (role === "staff") {
+      navigate("/staff/login");
+    } else {
+      navigate("/login");
+    }
+  } else {
+    navigate("/login");
+  }
 }
 
 /* =========================================================
-   ADMIN LOGIN
+   SHARED JSON POST HELPER
 ========================================================= */
 
-export async function loginAdmin(
-  email,
-  password
-) {
+async function postJson(path, body, method = "POST") {
   let response;
 
   try {
-    response = await fetch(
-      `${API_BASE_URL}/v1/winwin/admin/auth/login`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      }
-    );
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
   } catch (error) {
-    console.error(
-      "Admin login network error:",
-      error
-    );
+    console.error("Network error:", path, error);
 
     throw new Error(
       "Unable to reach the server. Check your connection and try again."
@@ -138,38 +123,54 @@ export async function loginAdmin(
     // Server returned non-JSON response
   }
 
-  console.log(
-    "ADMIN LOGIN RESPONSE:",
-    data
-  );
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || "Request failed. Please try again.");
+  }
+
+  return data;
+}
+
+/* =========================================================
+   ADMIN LOGIN
+========================================================= */
+
+export async function loginAdmin(email, password) {
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}/v1/winwin/admin/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (error) {
+    console.error("Admin login network error:", error);
+
+    throw new Error(
+      "Unable to reach the server. Check your connection and try again."
+    );
+  }
+
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    // Server returned non-JSON response
+  }
 
   if (!response.ok || !data?.success) {
-    throw new Error(
-      data?.message ||
-        "Invalid email or password"
-    );
+    throw new Error(data?.message || "Invalid email or password");
   }
 
   /*
     Backend returns:
 
-    user: {
-      _id,
-      department,
-      email,
-      name,
-      phone
-    }
+    user: { _id, department, email, name, phone }
   */
 
-  if (
-    String(
-      data.user?.department || ""
-    ).toLowerCase() !== "admin"
-  ) {
-    throw new Error(
-      "This account does not have admin access"
-    );
+  if (String(data.user?.department || "").toLowerCase() !== "admin") {
+    throw new Error("This account does not have admin access");
   }
 
   if (!data.token) {
@@ -180,13 +181,9 @@ export async function loginAdmin(
 
   return saveAuth({
     token: data.token,
-
     role: "admin",
-
     name: data.user?.name || "",
-
     email: data.user?.email || email,
-
     user: data.user || {},
   });
 }
@@ -195,62 +192,9 @@ export async function loginAdmin(
    ADMIN FORGOT PASSWORD (OTP FLOW)
 ========================================================= */
 
-async function postJson(
-  path,
-  body,
-  method = "POST"
-) {
-  let response;
-
-  try {
-    response = await fetch(
-      `${API_BASE_URL}${path}`,
-      {
-        method,
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify(body),
-      }
-    );
-  } catch (error) {
-    console.error(
-      "Network error:",
-      path,
-      error
-    );
-
-    throw new Error(
-      "Unable to reach the server. Check your connection and try again."
-    );
-  }
-
-  let data = null;
-
-  try {
-    data = await response.json();
-  } catch {
-    // Server returned non-JSON response
-  }
-
-  if (!response.ok || !data?.success) {
-    throw new Error(
-      data?.message ||
-        "Request failed. Please try again."
-    );
-  }
-
-  return data;
-}
-
 // Step 1: send the OTP. Returns { userId, message }
 export async function generateAdminOtp(email) {
-  const data = await postJson(
-    "/v1/winwin/admin/auth/generate-otp",
-    { email }
-  );
+  const data = await postJson("/v1/winwin/admin/auth/generate-otp", { email });
 
   return {
     userId: data.userInfo,
@@ -260,21 +204,14 @@ export async function generateAdminOtp(email) {
 
 // Step 2: verify the OTP
 export function verifyAdminOtp(userId, otp) {
-  return postJson(
-    "/v1/winwin/admin/auth/compare-otp",
-    {
-      _id: userId,
-      emailOtp: otp,
-    }
-  );
+  return postJson("/v1/winwin/admin/auth/compare-otp", {
+    _id: userId,
+    emailOtp: otp,
+  });
 }
 
 // Step 3: set the new password
-export function resetAdminPassword(
-  userId,
-  newPassword,
-  confirmPassword
-) {
+export function resetAdminPassword(userId, newPassword, confirmPassword) {
   return postJson(
     "/v1/winwin/admin/auth/reset-password",
     {
@@ -287,36 +224,31 @@ export function resetAdminPassword(
 }
 
 /* =========================================================
-   STAFF LOGIN
+   STAFF LOGIN (API)
 ========================================================= */
 
-const STAFF_DEMO = {
-  email: "staff@winwinfinance.com",
-  password: "staff123",
-  name: "Staff User",
-};
+export async function loginStaff(email, password) {
+  const data = await postJson("/v1/winwin/admin/staff/login", {
+    email,
+    password,
+  });
 
-export function loginStaff(
-  email,
-  password
-) {
-  if (
-    email !== STAFF_DEMO.email ||
-    password !== STAFF_DEMO.password
-  ) {
+  if (!data.token) {
     throw new Error(
-      "Invalid email or password"
+      "Login successful but authentication token was not received."
     );
   }
 
+  // Never keep the password hash in the browser session
+  const staff = { ...(data.staff || {}) };
+  delete staff.password;
+
   return saveAuth({
-    token: `demo-staff-${Date.now()}`,
-
+    token: data.token,
     role: "staff",
-
-    name: STAFF_DEMO.name,
-
-    email,
+    name: staff.name || "",
+    email: staff.email || email,
+    user: staff,
   });
 }
 
@@ -324,21 +256,10 @@ export function loginStaff(
    BACKWARD COMPATIBILITY
 ========================================================= */
 
-export function login(
-  role,
-  email,
-  password
-) {
-  if (role === "admin") {
-    throw new Error(
-      "Admin login now uses the API. Call loginAdmin(email, password)."
-    );
-  }
-
-  return loginStaff(
-    email,
-    password
-  );
+export function login(role, email, password) {
+  return role === "admin"
+    ? loginAdmin(email, password)
+    : loginStaff(email, password);
 }
 
 /* =========================================================
