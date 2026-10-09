@@ -22,6 +22,11 @@ import AllRoles from "./pages/admin/Staff Management/Roles/AllRoles";
 import CreateRole from "./pages/admin/Staff Management/Roles/CreateRole";
 import AllStaff from "./pages/admin/Staff Management/Staff/AllStaff";
 import CreateEditStaff from "./pages/admin/Staff Management/Staff/CreateEditStaff";
+import AdminLogs from "./pages/auth/AdminLogs";
+import StaffLogs from "./pages/auth/StaffLogs";
+import Policies from "./pages/admin/Settings/Policies";
+import CreateEditFAQ from "./pages/admin/Settings/Faqs/CreateEditFAQs";
+import AllFAQs from "./pages/admin/Settings/Faqs/AllFAQs";
 
 export default function App() {
   return (
@@ -46,6 +51,14 @@ export default function App() {
             <Route path="/admin/staff" element={<AllStaff />} />
             <Route path="/admin/staff/create" element={<CreateEditStaff />} />
             <Route path="/admin/staff/edit/:id" element={<CreateEditStaff />} />
+
+            <Route path="/admin/login/admin-logs" element={<AdminLogs />} />
+            <Route path="/admin/login/staff-logs" element={<StaffLogs />} />
+
+            <Route path="/admin/policies" element={<Policies />} />
+            <Route path="/admin/policies/create" element={<CreateEditFAQ />} />
+            <Route path="/admin/policies/edit/:id" element={<CreateEditFAQ />} />
+            <Route path="/admin/faqs" element={<AllFAQs />} />
 
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>

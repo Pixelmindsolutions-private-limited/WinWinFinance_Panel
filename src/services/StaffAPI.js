@@ -74,6 +74,9 @@ const StaffAPI = {
 
   // POST /staff/getprofile  (uses the logged-in staff's token) -> { staff }
   getProfile: () => request("/staff/getprofile", { method: "POST" }),
+
+  // POST /staff/get-logs -> { logs }
+  getLogs: () => request("/staff/get-logs", { method: "POST" }),
 };
 
 export default StaffAPI;

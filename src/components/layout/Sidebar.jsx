@@ -40,11 +40,11 @@ const adminItems = [
     ]
   },
   {
-    label: "Reports",
+    label: "Logs",
     icon: BarChart3,
     children: [
-      { label: "Collections", path: "/admin/reports/collections" },
-      { label: "Loans", path: "/admin/reports/loans" }
+      { label: "Admin Login logs", path: "/admin/login/admin-logs" },
+      { label: "Staff Login logs", path: "/admin/login/staff-logs" }
     ]
   },
   {
@@ -52,6 +52,8 @@ const adminItems = [
     icon: Settings,
     children: [
       { label: "Admin Profile", path: "/admin/settings" },
+      { label: "Policies", path: "/admin/policies" },
+      { label: "FAQs", path: "/admin/faqs" }
     ]
   }
 ];
